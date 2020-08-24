@@ -119,7 +119,8 @@ def main():
         startTime_ind = datetime.now()
         
         image_paths = glob.glob(f'{dir}/*.tif')
-        basename = os.path.splitext(os.path.basename(image_paths[0].split('_')[-2]))[0]
+        basename = os.path.splitext(os.path.basename(image_paths[0]))[0].split('_')[0]
+        print(basename)
         out_path = os.path.join(args.outdir, basename + '_segmentation.csv')
 
         image_dicts = []
