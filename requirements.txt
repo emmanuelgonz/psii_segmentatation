@@ -1,0 +1,8 @@
+GDAL==3.0.4
+numpy
+matplotlib
+rasterio
+shapely
+geopandas
+Rtree
+pandas
