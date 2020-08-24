@@ -117,11 +117,15 @@ def main():
 
     for dir in args.dirs:
         startTime_ind = datetime.now()
-        
+
         image_paths = glob.glob(f'{dir}/*.tif')
         basename = os.path.splitext(os.path.basename(image_paths[0]))[0].split('_')[0]
-        print(basename)
-        out_path = os.path.join(args.outdir, basename + '_segmentation.csv')
+        plot = '_'.join(str(image_paths[0].split('/')[-2]).split(' '))
+        
+        if not os.path.isdir(os.path.join(args.outdir, plot)):
+            os.makedirs(os.path.join(args.outdir, plot))
+
+        out_path = os.path.join(args.outdir, plot, basename + '_segmentation.csv')
 
         image_dicts = []
         for ip in image_paths:
