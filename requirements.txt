@@ -1,5 +1,4 @@
 GDAL==3.0.4
-pyproj==3.0.0.post1
 numpy==1.19.1
 matplotlib==3.2.1
 shapely==1.7.0
