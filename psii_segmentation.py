@@ -19,6 +19,7 @@ import pandas as pd
 from osgeo import gdal, ogr, osr
 import json
 from datetime import datetime
+import cv2
 startTime = datetime.now()
 
 # --------------------------------------------------
@@ -47,15 +48,30 @@ def get_args():
 
 # --------------------------------------------------
 def apply_threshold(img_path):
+    args = get_args()
+
     plot = img_path.split('/')[-2]
+    path, extension = os.path.splitext(img_path)
+    directory, sub_directory, filename = path.split('/')
+    mask_filename = ''.join([filename.split('_')[0], '_rawData0046_mask.npy'])
+    mask_path = os.path.join(directory, sub_directory, mask_filename)
+    print(filename)
+
+    mask = np.load(mask_path)
 
     g_img = gdal.Open(img_path)
     a_img = g_img.GetRasterBand(1).ReadAsArray()
+
+    a_img = np.where(mask==0, a_img, mask)
+    a_img[a_img==0] = np.nan
+    # a_img = cv2.bitwise_and(a_img, mask)
+    # a_img[a_img==0] = np.nan
 
     all_pixels = []
     for row in a_img:
         all_pixels.extend(row)
     all_pixels = np.asarray(all_pixels)
+    all_pixels = all_pixels[~np.isnan(all_pixels)]
 
     thresholds = {
         "t1": (0, 7 ),
@@ -129,6 +145,7 @@ def main():
 
         image_dicts = []
         for ip in image_paths:
+            #print(ip)
             image_dicts.extend(apply_threshold(ip))
 
         df = pd.DataFrame(image_dicts)
