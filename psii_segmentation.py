@@ -55,7 +55,6 @@ def apply_threshold(img_path):
     directory, sub_directory, filename = path.split('/')
     mask_filename = ''.join([filename.split('_')[0], '_rawData0046_mask.npy'])
     mask_path = os.path.join(directory, sub_directory, mask_filename)
-    print(filename)
 
     mask = np.load(mask_path)
 
@@ -64,8 +63,8 @@ def apply_threshold(img_path):
 
     a_img = np.where(mask==0, a_img, mask)
     a_img[a_img==0] = np.nan
-    # a_img = cv2.bitwise_and(a_img, mask)
-    # a_img[a_img==0] = np.nan
+    file_path = os.path.join(directory, sub_directory, filename+'.png')
+    cv2.imwrite(file_path, a_img)
 
     all_pixels = []
     for row in a_img:
