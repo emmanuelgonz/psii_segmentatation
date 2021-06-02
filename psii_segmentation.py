@@ -19,7 +19,6 @@ import pandas as pd
 from osgeo import gdal, ogr, osr
 import json
 from datetime import datetime
-import cv2
 startTime = datetime.now()
 
 # --------------------------------------------------
@@ -64,7 +63,6 @@ def apply_threshold(img_path):
     a_img = np.where(mask==0, a_img, mask)
     a_img[a_img==0] = np.nan
     file_path = os.path.join(directory, sub_directory, filename+'.png')
-    cv2.imwrite(file_path, a_img)
 
     all_pixels = []
     for row in a_img:
