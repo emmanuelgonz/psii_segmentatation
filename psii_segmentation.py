@@ -19,6 +19,7 @@ import pandas as pd
 from osgeo import gdal, ogr, osr
 import json
 from datetime import datetime
+import multiprocessing
 startTime = datetime.now()
 
 # --------------------------------------------------
@@ -105,6 +106,30 @@ def apply_threshold(img_path):
         })
     return output_list
 
+def process_set(directory):
+
+    args = get_args()
+    startTime_ind = datetime.now()
+
+    image_paths = glob.glob(f'{directory}/*.tif')
+    print(image_paths)
+    basename = os.path.splitext(os.path.basename(image_paths[0]))[0].split('_')[0]
+    plot = '_'.join(str(image_paths[0].split('/')[-2]).split(' '))
+    
+    if not os.path.isdir(os.path.join(args.outdir, plot)):
+        os.makedirs(os.path.join(args.outdir, plot))
+
+    out_path = os.path.join(args.outdir, plot, basename + '_segmentation.csv')
+
+    image_dicts = []
+    for ip in image_paths:
+        image_dicts.extend(apply_threshold(ip))
+
+    df = pd.DataFrame(image_dicts)
+
+    df.to_csv(out_path)
+    print(f'Created {out_path}\nProcessing time: {datetime.now() - startTime_ind}\n')
+
 
 # --------------------------------------------------
 def main():
@@ -115,26 +140,8 @@ def main():
     if not os.path.isdir(args.outdir):
         os.makedirs(args.outdir)
 
-    for dir in args.dirs:
-        startTime_ind = datetime.now()
-
-        image_paths = glob.glob(f'{dir}/*.tif')
-        basename = os.path.splitext(os.path.basename(image_paths[0]))[0].split('_')[0]
-        plot = '_'.join(str(image_paths[0].split('/')[-2]).split(' '))
-        
-        if not os.path.isdir(os.path.join(args.outdir, plot)):
-            os.makedirs(os.path.join(args.outdir, plot))
-
-        out_path = os.path.join(args.outdir, plot, basename + '_segmentation.csv')
-
-        image_dicts = []
-        for ip in image_paths:
-            image_dicts.extend(apply_threshold(ip))
-
-        df = pd.DataFrame(image_dicts)
-
-        df.to_csv(out_path)
-        print(f'Created {out_path}\nProcessing time: {datetime.now() - startTime_ind}\n')
+    with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
+        p.map(process_set, args.dirs)
 
     print(f'Done.\nEntire processing time: {datetime.now() - startTime}')
 
