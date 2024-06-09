@@ -1,4 +1,5 @@
 # PSii Segmentation
+This scripts segments pixels based on thresholds that were experimentally derived by [Herrit et al., 2021](https://doi.org/10.1016/j.softx.2021.100685).
 
 ## Inputs
 
